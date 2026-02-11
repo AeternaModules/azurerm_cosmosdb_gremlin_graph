@@ -34,9 +34,12 @@ resource "azurerm_cosmosdb_gremlin_graph" "cosmosdb_gremlin_graphs" {
       dynamic "composite_index" {
         for_each = index_policy.value.composite_index != null ? [index_policy.value.composite_index] : []
         content {
-          index {
-            order = composite_index.value.index.order
-            path  = composite_index.value.index.path
+          dynamic "index" {
+            for_each = composite_index.value.index
+            content {
+              order = index.value.order
+              path  = index.value.path
+            }
           }
         }
       }

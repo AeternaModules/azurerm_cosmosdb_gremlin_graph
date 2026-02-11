@@ -52,12 +52,12 @@ EOT
       mode                          = string
     }))
     index_policy = optional(object({
-      automatic = optional(bool, true)
+      automatic = optional(bool) # Default: true
       composite_index = optional(object({
-        index = object({
+        index = list(object({
           order = string
           path  = string
-        })
+        }))
       }))
       excluded_paths = optional(set(string))
       included_paths = optional(set(string))
@@ -70,5 +70,13 @@ EOT
       paths = set(string)
     }))
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        length(v.index_policy.composite_index.index) >= 1
+      )
+    ])
+    error_message = "Each index list must contain at least 1 items"
+  }
 }
 
