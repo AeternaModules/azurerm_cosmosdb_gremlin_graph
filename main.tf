@@ -32,7 +32,7 @@ resource "azurerm_cosmosdb_gremlin_graph" "cosmosdb_gremlin_graphs" {
     content {
       automatic = index_policy.value.automatic
       dynamic "composite_index" {
-        for_each = index_policy.value.composite_index != null ? [index_policy.value.composite_index] : []
+        for_each = index_policy.value.composite_index != null ? index_policy.value.composite_index : []
         content {
           dynamic "index" {
             for_each = composite_index.value.index
@@ -47,7 +47,7 @@ resource "azurerm_cosmosdb_gremlin_graph" "cosmosdb_gremlin_graphs" {
       included_paths = index_policy.value.included_paths
       indexing_mode  = index_policy.value.indexing_mode
       dynamic "spatial_index" {
-        for_each = index_policy.value.spatial_index != null ? [index_policy.value.spatial_index] : []
+        for_each = index_policy.value.spatial_index != null ? index_policy.value.spatial_index : []
         content {
           path = spatial_index.value.path
         }
@@ -56,7 +56,7 @@ resource "azurerm_cosmosdb_gremlin_graph" "cosmosdb_gremlin_graphs" {
   }
 
   dynamic "unique_key" {
-    for_each = each.value.unique_key != null ? [each.value.unique_key] : []
+    for_each = each.value.unique_key != null ? each.value.unique_key : []
     content {
       paths = unique_key.value.paths
     }
