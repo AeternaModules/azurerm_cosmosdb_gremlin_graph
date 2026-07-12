@@ -73,7 +73,7 @@ EOT
   validation {
     condition = alltrue([
       for k, v in var.cosmosdb_gremlin_graphs : (
-        v.index_policy.composite_index == null || alltrue([for item in v.index_policy.composite_index : (length(item.index) >= 1)])
+        v.index_policy == null || (v.index_policy.composite_index == null || alltrue([for item in v.index_policy.composite_index : (length(item.index) >= 1)]))
       )
     ])
     error_message = "Each index list must contain at least 1 items"
