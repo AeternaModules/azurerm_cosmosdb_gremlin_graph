@@ -52,7 +52,7 @@ EOT
       mode                          = string
     }))
     index_policy = optional(object({
-      automatic = optional(bool) # Default: true
+      automatic = optional(bool)
       composite_index = optional(list(object({
         index = list(object({
           order = string
