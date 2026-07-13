@@ -78,74 +78,102 @@ EOT
     ])
     error_message = "Each index list must contain at least 1 items"
   }
-  # --- Unconfirmed validation candidates, derived from azurerm_cosmosdb_gremlin_graph's provider source ---
-  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
-  # or a path that crosses a list-typed block (needs its own for_each wrapping).
-  # Review, translate into a real validation{} block above, and delete once confirmed.
-  # path: name
-  #   source:    [from validate.CosmosEntityName] len(value) < 1 || len(value) > 255
-  # path: resource_group_name
-  #   condition: length(value) <= 90
-  #   message:   [from resourcegroups.ValidateName: invalid when len(value) > 90]
-  #   source:    [from resourcegroups.ValidateName: invalid when len(value) > 90]
-  # path: resource_group_name
-  #   condition: !endswith(value, ".")
-  #   message:   [from resourcegroups.ValidateName: must not end with "."]
-  #   source:    [from resourcegroups.ValidateName: must not end with "."]
-  # path: resource_group_name
-  #   condition: length(value) != 0
-  #   message:   [from resourcegroups.ValidateName: invalid when len(value) == 0]
-  #   source:    [from resourcegroups.ValidateName: invalid when len(value) == 0]
-  # path: resource_group_name
-  #   source:    [from resourcegroups.ValidateName] !matched
-  # path: account_name
-  #   source:    [from validate.CosmosAccountName] !matched
-  # path: database_name
-  #   source:    [from validate.CosmosEntityName] len(value) < 1 || len(value) > 255
-  # path: analytical_storage_ttl
-  #   source:    validation.All(...) - no translation rule yet, add one
-  # path: throughput
-  #   source:    [from validate.CosmosThroughput] value < 400
-  # path: throughput
-  #   source:    [from validate.CosmosThroughput] value%100 != 0
-  # path: autoscale_settings.max_throughput
-  #   source:    [from validate.CosmosMaxThroughput] !ok
-  # path: autoscale_settings.max_throughput
-  #   source:    [from validate.CosmosMaxThroughput] v < 1000
-  # path: autoscale_settings.max_throughput
-  #   source:    [from validate.CosmosMaxThroughput] v%1000 != 0
-  # path: partition_key_path
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: partition_key_version
-  #   condition: value >= 1 && value <= 2
-  #   message:   must be between 1 and 2
-  # path: index_policy.indexing_mode
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: index_policy.included_paths[*]
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: index_policy.excluded_paths[*]
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: index_policy.composite_index.index.path
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: index_policy.composite_index.index.order
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: index_policy.spatial_index.path
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: conflict_resolution_policy.mode
-  #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
-  # path: conflict_resolution_policy.conflict_resolution_path
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: conflict_resolution_policy.conflict_resolution_procedure
-  #   condition: length(value) > 0
-  #   message:   must not be empty
-  # path: unique_key.paths[*]
-  #   condition: length(value) > 0
-  #   message:   must not be empty
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        length(v.resource_group_name) <= 90
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: invalid when len(value) > 90]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        !endswith(v.resource_group_name, ".")
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: must not end with \".\"]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        length(v.resource_group_name) != 0
+      )
+    ])
+    error_message = "[from resourcegroups.ValidateName: invalid when len(value) == 0]"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        length(v.partition_key_path) > 0
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        v.partition_key_version == null || (v.partition_key_version >= 1 && v.partition_key_version <= 2)
+      )
+    ])
+    error_message = "must be between 1 and 2"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        v.index_policy == null || (v.index_policy.included_paths == null || (alltrue([for x in v.index_policy.included_paths : length(x) > 0])))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        v.index_policy == null || (v.index_policy.excluded_paths == null || (alltrue([for x in v.index_policy.excluded_paths : length(x) > 0])))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        v.index_policy == null || (v.index_policy.composite_index == null || alltrue([for item in v.index_policy.composite_index : (alltrue([for item in item.index : (length(item.path) > 0)]))]))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        v.index_policy == null || (v.index_policy.spatial_index == null || alltrue([for item in v.index_policy.spatial_index : (length(item.path) > 0)]))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        v.conflict_resolution_policy == null || (v.conflict_resolution_policy.conflict_resolution_path == null || (length(v.conflict_resolution_policy.conflict_resolution_path) > 0))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        v.conflict_resolution_policy == null || (v.conflict_resolution_policy.conflict_resolution_procedure == null || (length(v.conflict_resolution_policy.conflict_resolution_procedure) > 0))
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.cosmosdb_gremlin_graphs : (
+        v.unique_key == null || alltrue([for item in v.unique_key : (alltrue([for x in item.paths : length(x) > 0]))])
+      )
+    ])
+    error_message = "must not be empty"
+  }
+  # Note: 13 additional provider-side validators are enforced at apply time but not mirrored as validation{} blocks here (bespoke or non-mechanically-translatable).
 }
 
