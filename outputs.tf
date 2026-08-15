@@ -12,11 +12,11 @@ output "cosmosdb_gremlin_graphs_analytical_storage_ttl" {
 }
 output "cosmosdb_gremlin_graphs_autoscale_settings" {
   description = "Map of autoscale_settings values across all cosmosdb_gremlin_graphs, keyed the same as var.cosmosdb_gremlin_graphs"
-  value       = { for k, v in azurerm_cosmosdb_gremlin_graph.cosmosdb_gremlin_graphs : k => v.autoscale_settings if v.autoscale_settings != null && length(v.autoscale_settings) > 0 }
+  value       = { for k, v in azurerm_cosmosdb_gremlin_graph.cosmosdb_gremlin_graphs : k => one(v.autoscale_settings) if v.autoscale_settings != null && length(v.autoscale_settings) > 0 }
 }
 output "cosmosdb_gremlin_graphs_conflict_resolution_policy" {
   description = "Map of conflict_resolution_policy values across all cosmosdb_gremlin_graphs, keyed the same as var.cosmosdb_gremlin_graphs"
-  value       = { for k, v in azurerm_cosmosdb_gremlin_graph.cosmosdb_gremlin_graphs : k => v.conflict_resolution_policy if v.conflict_resolution_policy != null && length(v.conflict_resolution_policy) > 0 }
+  value       = { for k, v in azurerm_cosmosdb_gremlin_graph.cosmosdb_gremlin_graphs : k => one(v.conflict_resolution_policy) if v.conflict_resolution_policy != null && length(v.conflict_resolution_policy) > 0 }
 }
 output "cosmosdb_gremlin_graphs_database_name" {
   description = "Map of database_name values across all cosmosdb_gremlin_graphs, keyed the same as var.cosmosdb_gremlin_graphs"
@@ -28,7 +28,7 @@ output "cosmosdb_gremlin_graphs_default_ttl" {
 }
 output "cosmosdb_gremlin_graphs_index_policy" {
   description = "Map of index_policy values across all cosmosdb_gremlin_graphs, keyed the same as var.cosmosdb_gremlin_graphs"
-  value       = { for k, v in azurerm_cosmosdb_gremlin_graph.cosmosdb_gremlin_graphs : k => v.index_policy if v.index_policy != null && length(v.index_policy) > 0 }
+  value       = { for k, v in azurerm_cosmosdb_gremlin_graph.cosmosdb_gremlin_graphs : k => one(v.index_policy) if v.index_policy != null && length(v.index_policy) > 0 }
 }
 output "cosmosdb_gremlin_graphs_name" {
   description = "Map of name values across all cosmosdb_gremlin_graphs, keyed the same as var.cosmosdb_gremlin_graphs"
